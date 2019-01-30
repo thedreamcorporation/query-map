@@ -5,7 +5,7 @@ Extension of Map to integrate MongoDB query language via [mingo](https://github.
 Examples:
 
 ```js
-import QueryMap from '@tdc/query-map`
+import QueryMap from '@tdc/query-map'
 
 const map = new QueryMap({
     data: [{
