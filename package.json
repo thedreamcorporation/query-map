@@ -1,0 +1,14 @@
+{
+  "name": "@tdc/query-map",
+  "version": "1.0.1",
+  "description": "Extension of Map to integrate MongoDB query language via Mingo with Minimongo-style methods",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chris Adams <chris@thedreamcorporation.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mingo": "^2.2.10"
+  }
+}
