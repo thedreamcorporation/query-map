@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
-        "lib": ["ESNext"],
-        "target": "ESNext",
-        "module": "ESNext",
+        "lib": ["esnext"],
+        "target": "esnext",
+        "module": "commonjs",
         "declaration": true,
         "outDir": "./lib",
-        "strict": true,
-        "moduleResolution": "node"
+        "strict": true
     },
     "include": [
         "src"
