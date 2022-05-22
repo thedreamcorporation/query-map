@@ -1,4 +1,5 @@
-import mingo from 'mingo';
+import { Query } from 'mingo';
+import { Callback, RawObject } from 'mingo/types'
 export class QueryMap extends Map<string, unknown> {
   options: {
     errorOnDuplicate: boolean;
@@ -50,7 +51,8 @@ export class QueryMap extends Map<string, unknown> {
   }
 
   find(query: Record<string, unknown> = {}, options: { sort?: Record<string, number>; limit?: number } = {}) {
-    let cursor = mingo.find(Array.from(this.values()), query);
+    const mingoQuery = new Query(query);
+    let cursor = mingoQuery.find(Array.from(this.values()));
 
     if (options.sort) {
       cursor = cursor.sort(options.sort);
@@ -73,12 +75,12 @@ export class QueryMap extends Map<string, unknown> {
   }
 
   remove(query: Record<string, unknown> = {}) {
-    const mingoQuery = new mingo.Query(query);
+    const mingoQuery = new Query(query);
 
     let deletedDocuments = 0;
 
     this.forEach((doc, key) => {
-      if (mingoQuery.test(doc)) {
+      if (mingoQuery.test(doc as RawObject)) {
         this.delete(key);
         deletedDocuments += 1;
       }
@@ -87,7 +89,7 @@ export class QueryMap extends Map<string, unknown> {
     return deletedDocuments;
   }
 
-  update(query: Record<string, unknown> = {}, iteree: (document: unknown, index: number) => void) {
+  update(query: Record<string, unknown> = {}, iteree: Callback<unknown, unknown>) {
     const cursor = this.find(query);
     cursor.forEach(iteree);
 
