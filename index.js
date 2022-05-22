@@ -120,6 +120,18 @@ class QueryMap extends Map {
             sort: sortObject
         }).all()
     }
+
+    replaceData(newData) {
+        newData.forEach(doc => {
+            this.set(doc[this.options.keyProperty], doc)
+        })
+
+        this.keys.forEach((key) => {
+            if (!newData.find(doc => doc[this.options.keyProperty] === key)) {
+                this.delete(key)
+            }
+        })
+    }
 }
 
 module.exports = QueryMap
