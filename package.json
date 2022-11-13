@@ -1,11 +1,11 @@
 {
   "name": "@tdc/query-map",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Extension of Map to integrate MongoDB query language via Mingo with Minimongo-style methods",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
-    "lib /**/*"
+    "lib/**/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
