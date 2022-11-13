@@ -1,6 +1,7 @@
 import { Query } from 'mingo';
-import { Callback, RawObject } from 'mingo/types'
-export class QueryMap extends Map<string, unknown> {
+import { Cursor } from 'mingo/cursor';
+import { Callback, RawObject } from 'mingo/types';
+export class QueryMap<Type = Record<string, unknown>> extends Map<string, Type> {
   options: {
     errorOnDuplicate: boolean;
     keyProperty: string;
@@ -11,9 +12,9 @@ export class QueryMap extends Map<string, unknown> {
     keyProperty = '_id',
     data = [],
   }: {
-    errorOnDuplicate: true;
-    keyProperty: string;
-    data: [string, unknown][] | Record<string, unknown>[];
+    errorOnDuplicate?: boolean;
+    keyProperty?: string;
+    data?: [string, Type][] | Type[];
   }) {
     if (data.length > 0) {
       /* we have been passed some starting data */
@@ -21,7 +22,7 @@ export class QueryMap extends Map<string, unknown> {
 
       if (Array.isArray(data[0]) && data[0].length === 2) {
         /* appears to be k-v pairs - proceed */
-        super(data as [string, unknown][]);
+        super(data as [string, Type][]);
       } else if (typeof data[0] === 'object') {
         /* we need to transform the data */
         if ((data[0] as Record<string, unknown>)[keyProperty]) {
@@ -32,7 +33,7 @@ export class QueryMap extends Map<string, unknown> {
               } else {
                 return [x[keyProperty], x];
               }
-            }) as [string, unknown][],
+            }) as [string, Type][],
           );
         } else {
           throw new Error('Could not find key property to populate QueryMap');
@@ -50,7 +51,7 @@ export class QueryMap extends Map<string, unknown> {
     };
   }
 
-  find(query: Record<string, unknown> = {}, options: { sort?: Record<string, number>; limit?: number } = {}) {
+  find(query: Record<string, unknown> = {}, options: { sort?: Record<string, number>; limit?: number } = {}): Cursor {
     const mingoQuery = new Query(query);
     let cursor = mingoQuery.find(Array.from(this.values()));
 
@@ -65,11 +66,14 @@ export class QueryMap extends Map<string, unknown> {
     return cursor;
   }
 
-  findOne(query: Record<string, unknown> = {}, options: { sort?: Record<string, number>; limit?: number } = {}) {
-    const docs = this.find(query, {
+  findOne(
+    query: Record<string, unknown> = {},
+    options: { sort?: Record<string, number>; limit?: number } = {},
+  ): Type | undefined {
+    const docs: Type[] = this.find(query, {
       ...options,
       limit: 1,
-    }).all();
+    }).all() as Type[];
 
     return docs.length > 0 ? docs[0] : undefined;
   }
@@ -96,9 +100,9 @@ export class QueryMap extends Map<string, unknown> {
     return cursor.count();
   }
 
-  insert(doc: [string, unknown] | Record<string, unknown>) {
+  insert(doc: Type) {
     let k: string;
-    let v: unknown;
+    let v: Type;
 
     if (Array.isArray(doc) && doc.length === 2) {
       /* appears to be k-v pairs - proceed */
@@ -138,14 +142,14 @@ export class QueryMap extends Map<string, unknown> {
     }).all();
   }
 
-  replaceData(data: [string, unknown][] | Record<string, unknown>[]) {
-    const processData = (newData: [string, unknown][]) => {
-      newData.forEach(([k, v]: [k: string, v: unknown]) => {
+  replaceData(data: [string, Type][] | Type[]) {
+    const processData = (newData: [string, Type][]) => {
+      newData.forEach(([k, v]: [k: string, v: Type]) => {
         this.set(k, v);
       });
 
       Array.from(this.keys()).forEach((key) => {
-        if (!newData.find(([k, v]: [k: string, v: unknown]) => k === key)) this.delete(key);
+        if (!newData.find(([k, v]: [k: string, v: Type]) => k === key)) this.delete(key);
       });
     };
 
@@ -155,7 +159,7 @@ export class QueryMap extends Map<string, unknown> {
 
       if (Array.isArray(data[0]) && data[0].length === 2) {
         /* appears to be k-v pairs - proceed */
-        processData(data as [string, unknown][]);
+        processData(data as [string, Type][]);
       } else if (typeof data[0] === 'object') {
         /* we need to transform the data */
         if ((data[0] as Record<string, unknown>)[this.options.keyProperty]) {
@@ -166,7 +170,7 @@ export class QueryMap extends Map<string, unknown> {
               } else {
                 return [x[this.options.keyProperty], x];
               }
-            }) as [string, unknown][],
+            }) as [string, Type][],
           );
         } else {
           throw new Error('Could not find key property to populate QueryMap');
